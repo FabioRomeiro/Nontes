@@ -1,0 +1,116 @@
+.nontes-landing-header,
+.nontes-landing-presentation,
+.nontes-landing-form {
+    padding: 32px;
+}
+
+.nontes-landing-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.nontes-landing-header__title {
+    margin: 0;
+    font-size: 32px;
+}
+.nontes-landing-header__subtitle {
+    margin: 0;
+    font-weight: 200;
+    color: #686868;
+}
+.nontes-landing-header__links {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.nontes-landing-header__links a {
+    margin-bottom: 8px;
+}
+.nontes-landing-header__links a:last-child {
+    margin-bottom: 0;
+}
+
+.nontes-landing-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.nontes-landing-form__label {
+    margin-bottom: 16px;
+    display: block;
+    text-align: center;
+    font-size: 42px;
+}
+.nontes-landing-form__link {
+    font-size: 24px;
+    margin-right: 8px;
+}
+.nontes-landing-form__field {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+.nontes-landing-form__input {
+    padding: 8px 16px;
+    font-size: 20px;
+}
+.nontes-landing-form__button {
+    padding: 8px 16px;
+    border: solid 1px #222222;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    background-color: white;
+    box-shadow: 0 0 5px rgba(0,0,0,.2);
+}
+
+.nontes-landing-presentation {
+    padding-top: 0;
+}
+.nontes-landing-presentation__list {
+    padding: 0;
+}
+.nontes-landing-presentation__item {
+    list-style: none;
+    margin-bottom: 8px;
+    font-size: 20px;
+    color: #707070;
+    line-height: 1.5em;
+}
+.nontes-landing-presentation__item strong {
+    color: #222222;
+}
+.nontes-landing-presentation__item::before {
+    content: '✅';
+}
+
+@media (max-width: 600px) {
+    .nontes-landing-form__field {
+        flex-direction: column;
+    }
+    .nontes-landing-form__link {
+        margin-right: 0;
+        margin-bottom: 8px;
+    }
+
+    .nontes-landing-header,
+    .nontes-landing-presentation,
+    .nontes-landing-form {
+        padding: 24px 24px 0 24px;
+    }
+}
+@media (max-width: 410px) {
+    .nontes-landing-header {
+        flex-direction: column;
+    }
+    .nontes-landing-header__links {
+        align-items: center;
+    }
+    .nontes-landing-header__info {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+}

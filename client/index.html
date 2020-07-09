@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nontes - Anote rápido</title>
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+    <header class="nontes-landing-header">
+        <div class="nontes-landing-header__info">
+            <h1 class="nontes-landing-header__title">
+                Nontes
+            </h1>
+            <h2 class="nontes-landing-header__subtitle">
+                Anote rápido
+            </h2>
+        </div>
+        <div class="nontes-landing-header__links">
+            <a href="http://github.com/FabioRomeiro">Code on Github</a>
+            <a href="http://dontpad.com/">Based on Dontpad</a>
+        </div>
+    </header>
+    <form class="nontes-landing-form" data-note-form>
+        <label for="nota" class="nontes-landing-form__label">
+            Crie ou acesse uma nota:
+        </label>
+        <div class="nontes-landing-form__field">
+            <span class="nontes-landing-form__link">www.nontes.com.br/</span>
+            <input autofocus id="nota" type="text" class="nontes-landing-form__input" data-note-name>
+        </div>
+        <div class="nontes-landing-form__field">
+            <button class="nontes-landing-form__button">Acessar</button>
+        </div>
+    </form>
+    <article class="nontes-landing-presentation">
+        <ul class="nontes-landing-presentation__list">
+            <li class="nontes-landing-presentation__item">
+                <strong>Acesse e edite suas notas offline</strong>. Quando estiver online de novo, nós as salvamos para você.
+            </li>
+            <li class="nontes-landing-presentation__item">
+                <strong>Não precisa lembrar de salvar</strong>. A gente salva suas notas automaticamente enquanto você as edita.
+            </li>
+            <li class="nontes-landing-presentation__item">
+                <strong>Sem login</strong>. Só acesse a url e comece a editar.
+            </li>
+            <li class="nontes-landing-presentation__item">
+                <strong>Organize suas notas</strong>. Crie pastas e subpastas usando: nontes.com.br/minhas-notas/faculdade/materia
+            </li>
+        </ul>
+    </article>
+
+    <script src="js/landing.js"></script>
+</body>
+</html>
