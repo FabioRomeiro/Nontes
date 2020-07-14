@@ -5,11 +5,16 @@
     let timeout = null;
     let interval = null;
     const savingInterval = 3000;
+    const noteName = location.href.split("/")[3];
 
-    function init() {
-        document
-            .querySelector('[data-note]')
-            .addEventListener('input', onInput);
+    async function init() {
+        fetch(`${noteName}?data`)
+            .then(res => res.json())
+            .then(content => {
+                const $noteTextarea = document.querySelector('[data-note]');
+                $noteTextarea.value = content;
+                $noteTextarea.addEventListener('input', onInput);
+            });
     }
 
     function onInput(event) {
@@ -40,7 +45,12 @@
     }
 
     function save(content) {
-        console.log('SALVANDO');
-        console.log(content);
+        fetch(`/update/${noteName}`, {
+            method: 'PUT',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({ content })
+        });
     }
 })()
