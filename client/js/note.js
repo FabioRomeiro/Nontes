@@ -5,15 +5,23 @@
     let timeout = null;
     let interval = null;
     const savingInterval = 3000;
-    const noteName = location.href.split("/")[3];
+    const url = location.href.split("/");
+    const noteName = url.splice(3, url.length).join('/');
+
+    const subNotesDataAttribute = 'data-subnotes';
+    const openBtnDataAttribute = 'data-open-btn';
 
     async function init() {
-        fetch(`${noteName}?data`)
+        fetch(`/${noteName}?data`)
             .then(res => res.json())
-            .then(content => {
-                const $noteTextarea = document.querySelector('[data-note]');
-                $noteTextarea.value = content;
+            .then(note => {
+                const $noteTextarea = document.querySelector('[data-note-content]');
+                $noteTextarea.value = note.content;
                 $noteTextarea.addEventListener('input', onInput);
+
+                if (note.subNotes.length) {
+                    createList(note.subNotes);
+                }
             });
     }
 
@@ -42,6 +50,58 @@
         timeout = setTimeout(() => {
             removeInterval();
         }, savingInterval * 2);
+    }
+
+    function createList(items) {
+        const $noteWrapper = document.querySelector('[data-nontes-note]');
+
+        const $openBtn = document.createElement('button');
+        $openBtn.setAttribute(openBtnDataAttribute, '');
+        $openBtn.classList.add('nontes-note__open-btn');
+        $openBtn.innerText = getOpenBtnText(true);
+
+        const $subnoteList = document.createElement('ul');
+        $subnoteList.classList.add('nontes-note__list');
+        $subnoteList.setAttribute(subNotesDataAttribute, '');
+        $subnoteList.appendChild($openBtn);
+
+        for (const item of items) {
+            const $subnoteLink = document.createElement('a');
+            $subnoteLink.setAttribute('href', `/${noteName}/${item.name}`);
+            $subnoteLink.innerText = item.name;
+            
+            const $subnoteItem = document.createElement('li');
+            $subnoteItem.classList.add('nontes-note__item');
+            $subnoteItem.appendChild($subnoteLink);
+
+            $subnoteList.appendChild($subnoteItem);
+        }
+
+        $noteWrapper.insertBefore($subnoteList, $noteWrapper.childNodes[0]);
+
+        document
+            .querySelector(`[${openBtnDataAttribute}]`)
+            .addEventListener('click', toggleList)
+        document
+            .querySelector(`[data-shadow]`)
+            .addEventListener('click', toggleList)
+    }
+
+    function toggleList(event) {
+        event.preventDefault();
+        const isOpen = toggleSubNotesListClass();
+        event.target.innerText = getOpenBtnText(!isOpen);
+    }
+
+    function toggleSubNotesListClass() {
+        const $subnoteList = document.querySelector(`[${subNotesDataAttribute}]`);
+        const openedClass = 'nontes-note__list--opened';
+        $subnoteList.classList.toggle(openedClass);
+        return $subnoteList.classList.contains(openedClass)
+    }
+
+    function getOpenBtnText(closed) {
+        return closed ? 'Ver sub-notas' : 'Esconder sub-notas';
     }
 
     function save(content) {

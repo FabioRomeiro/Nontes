@@ -3,27 +3,14 @@ body {
 }
 
 body,
-.nontes-content {
+textarea,
+button {
     font-family: Helvetica, Arial, sans-serif;
     color: #222222;
-}
-
-.nontes-content {
-    width: 100%;
-    height: 100vh;
-    border: none;
-    resize: none;
-    display: block;
-    box-sizing: border-box;
-}
-
-.nontes-content:focus {
-    border: none;
-    outline: none;
 }
 
 a {
     font-weight: 600;
     text-decoration: none;
-    color: #294ff7;
+    color: #5a74eb;
 }
