@@ -1,5 +1,5 @@
 const NoteModel = require('./models/Note');
-const { addSubNotes, getSubNote } = require('./helpers/utils');
+const { addSubNotes, getSubNote, getNotesNames: getChildrenNames } = require('./helpers/utils');
 const Queue = require('./helpers/queue');
 
 const methods = {
@@ -19,15 +19,21 @@ const methods = {
         root.save();
     },
 
-    async getNote(queue) {
+    async getNote(queue, subNotesNamesOnly) {
         const name = queue.dequeue();
         const root = await NoteModel.findOne({ name });
+        let note = root;
         
         if (!queue.isEmpty()) {
-            return getSubNote(root, queue);
+            note = getSubNote(root, queue);
         }
 
-        return root;
+        if (subNotesNamesOnly) {
+            note = note.toObject();
+            note.subNotes = getChildrenNames(note.subNotes);
+        }
+
+        return note;
     },
     
     async createIfDoesntExists(queue) {

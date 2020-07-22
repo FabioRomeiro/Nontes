@@ -30,19 +30,42 @@
         });
 
         serviceWorker = swRegistration.installing || swRegistration.waiting || swRegistration.active;
+        sendStatusUpdate(serviceWorker);
 
-        navigator.serviceWorker.addEventListener('controllerchange', () => 
-            serviceWorker = navigator.serviceWorker.controller);
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            serviceWorker = navigator.serviceWorker.controller
+            sendStatusUpdate(serviceWorker);
+        });
+        
+        navigator.serviceWorker.addEventListener('message', onServiceWorkerMessage);
+    }
+
+    function onServiceWorkerMessage(event) {
+        let { data } = event;
+        if (data.requestStatusUpdate) {
+            sendStatusUpdate(event.ports && event.ports[0])
+        }
+    }
+
+    function sendStatusUpdate(target) {
+        sendServiceWorkerMessage({ statusUpdate: { isOnline } }, target);
+    }
+
+    function sendServiceWorkerMessage(message, target) {
+        target = target || serviceWorker || navigator.serviceWorker.controller;
+        target.postMessage(message);
     }
 
     function onOnline() {
         isOnline = true;
         removeOfflineAlert();
+        sendStatusUpdate();
     }
 
     function onOfline() {
         isOnline = false;
         createOfflineAlert();
+        sendStatusUpdate();
     }
 
     function createOfflineAlert() {

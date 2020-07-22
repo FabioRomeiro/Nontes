@@ -18,6 +18,7 @@ const utils = {
 
         return utils.addSubNotes(child, queue);
     },
+
     getSubNote(root, queue) {
         const name = queue.dequeue();
         const subNote = root.subNotes.filter(note => note.name === name)[0];
@@ -27,6 +28,10 @@ const utils = {
         }
 
         return subNote;
+    },
+
+    getNotesNames(notes) {
+        return notes.map(note => note.name);
     }
 };
 

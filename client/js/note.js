@@ -5,8 +5,8 @@
     let timeout = null;
     let interval = null;
     const savingInterval = 3000;
-    const url = location.href.split("/");
-    const noteName = url.splice(3, url.length).join('/');
+    const url = new URL(location.href);
+    const noteName = url.pathname.replace('/', '');
 
     const subNotesDataAttribute = 'data-subnotes';
     const openBtnDataAttribute = 'data-open-btn';
@@ -67,8 +67,8 @@
 
         for (const item of items) {
             const $subnoteLink = document.createElement('a');
-            $subnoteLink.setAttribute('href', `/${noteName}/${item.name}`);
-            $subnoteLink.innerText = item.name;
+            $subnoteLink.setAttribute('href', `/${noteName}/${item}`);
+            $subnoteLink.innerText = item;
             
             const $subnoteItem = document.createElement('li');
             $subnoteItem.classList.add('nontes-note__item');
