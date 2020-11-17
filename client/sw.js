@@ -1,11 +1,11 @@
 const version = 4;
 let isOnline = true;
 
-const notesCacheName = `nontes-notes-${version}`;
 const dataCacheName = `nontes-data-${version}`;
 const staticCacheName = `nontes-static-${version}`;
 const urlsToStaticCache = [
     '/',
+    '/note',
     '/js/landing.js',
     '/js/nontes.js',
     '/js/note.js',
@@ -25,7 +25,6 @@ self.addEventListener('fetch', onFetch);
 
 function onMessage({ data }) {
     if (data.statusUpdate) {
-        console.log(`Service Worker ${version} is Online: ${data.statusUpdate.isOnline}`);
         isOnline = data.statusUpdate.isOnline;
     }
 }
@@ -35,7 +34,6 @@ function onFetch(event) {
 }
 
 async function onInstall(event) {
-    console.log(`Service Worker ${version} installed.`);
     self.skipWaiting();
 }
 
@@ -63,33 +61,53 @@ async function sendMessage(message) {
 
 async function router(request) {
     const url = new URL(request.url);
-    const cacheItemName = url.pathname + url.search;
+    let cacheItemName = '/note';
+
+    if (url.search || urlsToStaticCache.includes(url.pathname)) {
+        cacheItemName = url.pathname + url.search;
+    }
     
     let cache = await getCache(url);
 
     if (url.origin === location.origin) {
         let res;
+        const isSavingNote = request.method === 'PUT';
         
         if (isOnline) {
             try {
-                const fetchOptions = {
+                let cacheResponse = true;
+
+                let fetchOptions = {
                     method: request.method,
+                    headers: request.headers,
                     cache: 'no-store'
                 };
+
+                if (isSavingNote) {
+                    const body = await request.json();
+                    fetchOptions.body = JSON.stringify(body);
+                    cacheResponse = false;
+                }
+
                 res = await fetch(url.toString(), fetchOptions);
             
                 if (res && res.ok) {
-                    await cache.put(cacheItemName, res.clone());
+                    if (cacheResponse) {
+                        await cache.put(cacheItemName, res.clone());
+                    }
                     return res;
                 }
             }
             catch (err) {}
         }
 
-        res = await cache.match(cacheItemName);
-        if (res) {
-            return res.clone();
+        if (!isSavingNote) {
+            res = await cache.match(cacheItemName);
+            if (res) {
+                return res.clone();
+            }
         }
+        
     }
 }
 
@@ -118,8 +136,7 @@ async function cacheStaticFiles(forceReload) {
 
             const fetchOptions = {
                 method: 'GET',
-                cache: 'no-store',
-                body
+                cache: 'no-store'
             };
             res = await fetch(url, fetchOptions);
         
@@ -157,18 +174,11 @@ function isNoteData(url) {
     return url.includes('?data');
 }
 
-function isStaticFilePath(path) {
-    return urlsToStaticCache.includes(path);
-}
-
 async function getCache(url) {
-    if (isStaticFilePath(url.pathname)) {
-        return caches.open(staticCacheName);
-    }
-    else if (isNoteData(url.search)) {
+    if (isNoteData(url.search)) {
         return caches.open(dataCacheName);
     }
     else {
-        return caches.open(notesCacheName);
+        return caches.open(staticCacheName);
     }
 }
