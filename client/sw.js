@@ -1,5 +1,6 @@
-const version = 4;
+const version = 7;
 let isOnline = true;
+let cachingSubnotes = false;
 
 const dataCacheName = `nontes-data-${version}`;
 const staticCacheName = `nontes-static-${version}`;
@@ -23,9 +24,12 @@ self.addEventListener('fetch', onFetch);
 
 /* Event Handlers */
 
-function onMessage({ data }) {
+async function onMessage({ data }) {
     if (data.statusUpdate) {
         isOnline = data.statusUpdate.isOnline;
+    }
+    if (data.preloadSubnotes) {
+        await cacheSubnotes(data.preloadSubnotes.path);
     }
 }
 
@@ -107,7 +111,6 @@ async function router(request) {
                 return res.clone();
             }
         }
-        
     }
 }
 
@@ -120,6 +123,52 @@ async function handleActivation() {
 
 
 /* Cache Utils */
+async function cacheSubnotes(currentNodePath) {
+    if (!isOnline || cachingSubnotes) {
+        return;
+    }
+    cachingSubnotes = true;
+    await delay(5000);
+    let cache = await caches.open(dataCacheName);
+
+    try {
+        const fetchOptions = {
+            method: 'GET',
+            cache: 'no-store'
+        };
+        const url = getDataUrlFromPath(currentNodePath) + '&deep=true';
+        const res = await fetch(url, fetchOptions);
+        if (res && res.ok) {
+            const note = await res.json();
+            await cacheNotesRecursively(note, currentNodePath, res, cache);
+        }
+    }
+    catch (err) {
+        console.error(err);
+    }
+    finally {
+        cachingSubnotes = false;
+    }
+}
+
+async function cacheNotesRecursively(note, path, res, cache) {
+    if (typeof note === 'string') {
+        return;
+    }
+
+    const shallowNote = {
+        ...note,
+        subNotes: note.subNotes.map(subnote => subnote.name)
+    };
+    const response = new Response(JSON.stringify(shallowNote), res.headers);
+    const url = getDataUrlFromPath(path);
+    await cache.put(url, response.clone()); 
+
+    return note.subNotes.forEach(subnote =>
+        cacheNotesRecursively(subnote, `${path}/${subnote.name}`, res, cache)
+    );
+}
+
 async function cacheStaticFiles(forceReload) {
     const cache = await caches.open(staticCacheName);
 
@@ -174,6 +223,10 @@ function isNoteData(url) {
     return url.includes('?data');
 }
 
+function getDataUrlFromPath(path) {
+    return `${path}?data`;
+}
+
 async function getCache(url) {
     if (isNoteData(url.search)) {
         return caches.open(dataCacheName);
@@ -182,3 +235,8 @@ async function getCache(url) {
         return caches.open(staticCacheName);
     }
 }
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+

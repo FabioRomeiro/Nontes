@@ -1,6 +1,5 @@
 (function landing() {
     
-
     document.addEventListener('DOMContentLoaded', init);
 
     function init() {

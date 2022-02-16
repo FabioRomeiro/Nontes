@@ -32,6 +32,16 @@ const utils = {
 
     getNotesNames(notes) {
         return notes.map(note => note.name);
+    },
+
+    limitSubNotesDepth(note, maxDepth, currentDepth = 0) {
+        if (!note.subNotes.length || currentDepth === maxDepth) {
+            note.subNotes = note.subNotes.map(subnote => subnote.name);
+            return note;
+        }
+        note.subNotes = note.subNotes.map(subnote =>
+            utils.limitSubNotesDepth(subnote, maxDepth - 1, currentDepth + 1))
+        return note;
     }
 };
 
