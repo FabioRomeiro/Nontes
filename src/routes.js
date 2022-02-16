@@ -9,7 +9,7 @@ module.exports = app => {
         const namesQueue = new Queue(names);
 
         if (req.query.data !== undefined) {
-            api.getNote(namesQueue, true)
+            api.getNote(namesQueue, !req.query.deep)
                 .then(note => res.json(note));
         }
         else {
