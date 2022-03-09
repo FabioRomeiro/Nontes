@@ -12,12 +12,16 @@ module.exports = app => {
     });
 
     app.get('/*', async (req, res) => {
-        const names = req.params[0].split('/');
+        const path = req.params[0];
+        const names = path.split('/');
         const namesStack = new Stack(names);
 
         const note = await api.getOrCreate(namesStack);
         return res.render('note', {
+            notePath: path,
             content: note.content,
+            subNotes: note.subNotes.map(subNote => subNote.name),
+            hasSubNotes: note.subNotes.length > 0,
             title: `${note.name} - Nontes`,
             style: 'note.css'
         })

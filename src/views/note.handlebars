@@ -1,9 +1,19 @@
 
 <article data-nontes-note class="nontes-note">
+    {{#if hasSubNotes}}
+        <ul class="nontes-note__list" data-subnotes>
+            {{#each subNotes}}
+                <li class="nontes-note__item">
+                    <a href="/{{../notePath}}/{{this}}">{{this}}</a>
+                </li>
+            {{/each}}
+            <button class="nontes-note__open-btn" data-open-btn>
+                Ver sub-notas
+            </button> 
+        </ul>
+    {{/if}}
     <div data-shadow class="nontes-note__shadow"></div>
-    <textarea data-note-content autofocus class="nontes-note__content">
-        {{ content }}
-    </textarea>
+    <textarea data-note-content autofocus class="nontes-note__content">{{ content }}</textarea>
 </article>
 
 <script src="/js/nontes.js"></script>

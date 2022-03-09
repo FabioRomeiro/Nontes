@@ -15,7 +15,7 @@ const methods = {
         const noteName = stack.unstack();
         let note = await NoteModel.findOne({ name: noteName });
         if (!note) {
-            note = methods.createNote({
+            note = await methods.createNote({
                 name: noteName,
                 content: '',
                 subNotes: []
