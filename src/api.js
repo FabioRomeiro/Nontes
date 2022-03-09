@@ -1,5 +1,4 @@
 const NoteModel = require('./models/Note');
-const Queue = require('./helpers/queue');
 
 const methods = {
     async createNote(note) {
