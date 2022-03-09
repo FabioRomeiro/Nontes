@@ -11,18 +11,9 @@
     const subNotesDataAttribute = 'data-subnotes';
     const openBtnDataAttribute = 'data-open-btn';
 
-    async function init() {
-        fetch(`/${noteName}?data`)
-            .then(res => res.json())
-            .then(note => {
-                const $noteTextarea = document.querySelector('[data-note-content]');
-                $noteTextarea.value = note.content;
-                $noteTextarea.addEventListener('input', onInput);
-
-                if (note.subNotes.length) {
-                    createList(note.subNotes);
-                }
-            });
+    function init() {
+        const $noteTextarea = document.querySelector('[data-note-content]');
+        $noteTextarea.addEventListener('input', onInput);
     }
 
     function onInput(event) {

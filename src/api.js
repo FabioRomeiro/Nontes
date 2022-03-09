@@ -1,53 +1,33 @@
 const NoteModel = require('./models/Note');
-const { addSubNotes, getSubNote, getNotesNames: getChildrenNames } = require('./helpers/utils');
 const Queue = require('./helpers/queue');
 
 const methods = {
     async createNote(note) {
-        await NoteModel.create(note);
+        return await NoteModel.create(note);
     },
 
-    async updateNote(queue, content) {
-        const root = await NoteModel.findOne({ name: queue.dequeue() });
-        let note = root;
-
-        if (!queue.isEmpty()) {
-            note = getSubNote(note, queue);
-        }
-        
+    async updateNote(stack, content) {
+        const note = await NoteModel.findOne({ name: stack.unstack() });
         note.content = content;
-        root.save();
-    },
-
-    async getNote(queue, subNotesNamesOnly) {
-        const name = queue.dequeue();
-        const root = await NoteModel.findOne({ name });
-        let note = root;
-        
-        if (!queue.isEmpty()) {
-            note = getSubNote(root, queue);
-        }
-
-        if (subNotesNamesOnly) {
-            note = note.toObject();
-            note.subNotes = getChildrenNames(note.subNotes);
-        }
-
-        return note;
+        note.save();
     },
     
-    async createIfDoesntExists(queue) {
-        const rootName = queue.dequeue();
-        let rootNote = await methods.getNote(new Queue([rootName]));
-        if (!rootNote) {
-            rootNote = {
-                name: rootName,
+    async getOrCreate(stack) {
+        const noteName = stack.unstack();
+        let note = await NoteModel.findOne({ name: noteName });
+        if (!note) {
+            note = methods.createNote({
+                name: noteName,
                 content: '',
                 subNotes: []
+            });
+            if (!stack.isEmpty()) {
+                parent = await methods.getOrCreate(stack);
+                parent.subNotes = [...parent.subNotes, note];
+                parent.save();
             }
         }
-        addSubNotes(rootNote, queue);
-        await methods.createNote(rootNote);
+        return note;
     }
 }
 

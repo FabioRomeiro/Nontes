@@ -6,7 +6,6 @@ const dataCacheName = `nontes-data-${version}`;
 const staticCacheName = `nontes-static-${version}`;
 const urlsToStaticCache = [
     '/',
-    '/note',
     '/js/landing.js',
     '/js/nontes.js',
     '/js/note.js',

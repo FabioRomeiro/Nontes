@@ -1,28 +1,33 @@
 const api = require('./api');
 const path = require('path');
-const Queue = require('./helpers/queue');
+const Stack = require('./helpers/stack');
 
 module.exports = app => {
 
-    app.get('/*', (req, res) => {
-        const names = req.params[0].split('/');
-        const namesQueue = new Queue(names);
+    app.get('/', (req, res) => {
+        return res.render('index', {
+            title: 'Nontes - Anote rápido e em qualquer lugar',
+            style: 'landing.css'
+        });
+    });
 
-        if (req.query.data !== undefined) {
-            api.getNote(namesQueue, !req.query.deep)
-                .then(note => res.json(note));
-        }
-        else {
-            api.createIfDoesntExists(namesQueue)
-                .then(() => res.sendFile(path.resolve('client/note.html')));
-        }
+    app.get('/*', async (req, res) => {
+        const names = req.params[0].split('/');
+        const namesStack = new Stack(names);
+
+        const note = await api.getOrCreate(namesStack);
+        return res.render('note', {
+            content: note.content,
+            title: `${note.name} - Nontes`,
+            style: 'note.css'
+        })
     });
 
     app.put('/update/*', (req, res) => {
         const content = req.body.content;
         const names = req.params[0].split('/');
-        const namesQueue = new Queue(names);
-        api.updateNote(namesQueue, content);
+        const namesStack = new Stack(names);
+        api.updateNote(namesStack, content);
         res.status(200).send();
     });
 };
