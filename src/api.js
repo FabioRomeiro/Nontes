@@ -1,33 +1,63 @@
 const NoteModel = require('./models/Note');
 
 const methods = {
-    async createNote(note) {
-        return await NoteModel.create(note);
+    async createOrUpdateNote(note) {
+        if (note instanceof NoteModel) {
+            note.save();
+        }
+        else {
+            NoteModel.create(note);
+        }
     },
 
-    async updateNote(stack, content) {
-        const note = await NoteModel.findOne({ name: stack.unstack() });
+    async updateNote(queue, content) {
+        const root = await NoteModel.findOne({ name: queue.dequeue() });
+        let note = root;
+        if (!queue.isEmpty()) {
+            note = methods.getOrCreateSubNote(root, queue);
+        }
         note.content = content;
-        note.save();
+        root.save();
     },
-    
-    async getOrCreate(stack) {
-        const noteName = stack.unstack();
-        let note = await NoteModel.findOne({ name: noteName });
-        if (!note) {
-            note = await methods.createNote({
-                name: noteName,
+
+    getOrCreateSubNote(root, queue) {
+        if (queue.isEmpty()) {
+            return root;
+        }
+
+        const subNoteName = queue.dequeue();
+        let subNote = root.subNotes.find(note => note.name === subNoteName);
+        if (!subNote) {
+            subNote = {
+                name: subNoteName,
                 content: '',
                 subNotes: []
-            });
-            if (!stack.isEmpty()) {
-                parent = await methods.getOrCreate(stack);
-                parent.subNotes = [...parent.subNotes, note];
-                parent.save();
-            }
+            };
+            root.subNotes.push(subNote);
         }
+
+        return methods.getOrCreateSubNote(subNote, queue);
+    },
+    
+    async getOrCreateNote(queue) {
+        const rootName = queue.dequeue();
+        let root = await NoteModel.findOne({ name: rootName })
+        const rootExists = !!root;
+        if (!rootExists) {
+            root = {
+                name: rootName,
+                content: '',
+                subNotes: []
+            };
+        }
+
+        const note = methods.getOrCreateSubNote(root, queue);
+
+        methods.createOrUpdateNote(root);
+
         return note;
     }
 }
 
 module.exports = methods;
+

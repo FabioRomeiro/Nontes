@@ -1,8 +1,9 @@
 const api = require('./api');
 const path = require('path');
-const Stack = require('./helpers/stack');
+const Queue = require('./helpers/queue');
 
 module.exports = app => {
+    app.get('/favicon.ico', (req, res) => res.status(204));
 
     app.get('/', (req, res) => {
         return res.render('index', {
@@ -14,9 +15,8 @@ module.exports = app => {
     app.get('/*', async (req, res) => {
         const path = req.params[0];
         const names = path.split('/');
-        const namesStack = new Stack(names);
-
-        const note = await api.getOrCreate(namesStack);
+        const namesQueue = new Queue(names);
+        const note = await api.getOrCreateNote(namesQueue);
         return res.render('note', {
             notePath: path,
             content: note.content,
@@ -30,8 +30,8 @@ module.exports = app => {
     app.put('/update/*', (req, res) => {
         const content = req.body.content;
         const names = req.params[0].split('/');
-        const namesStack = new Stack(names);
-        api.updateNote(namesStack, content);
+        const namesQueue = new Queue(names);
+        api.updateNote(namesQueue, content);
         res.status(200).send();
     });
 };
