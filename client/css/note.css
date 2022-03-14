@@ -20,11 +20,8 @@
     padding: 0;
     width: 150px;
     margin-right: 16px;
-    border-left: none;
-    border-bottom: none;
-    border-right-width: 1px;
-    border-color: #dadada;
-    border-style: solid;
+    border: 0;
+    border-right: solid 1px #dadada;
     background-color: #f5f5f5;
     position: relative;
 }

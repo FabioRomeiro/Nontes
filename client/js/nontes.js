@@ -11,10 +11,10 @@
 
     function init() {
         
-        /*if ('serviceWorker' in navigator) {
+        if ('serviceWorker' in navigator) {
             initServiceWorker()
                 .catch(console.error);
-        }*/
+        }
         
         window.addEventListener('online', onOnline);
         window.addEventListener('offline', onOfline);

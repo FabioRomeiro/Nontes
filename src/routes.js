@@ -1,15 +1,14 @@
 const api = require('./api');
 const path = require('path');
 const Queue = require('./helpers/queue');
+const render = require('./helpers/render');
+const { subNotesToHTML } = require('./helpers/utils');
 
 module.exports = app => {
-    app.get('/favicon.ico', (req, res) => res.status(204));
+    app.get('/favicon.ico', (req, res) => res.status(204).send());
 
     app.get('/', (req, res) => {
-        res.render('index', {
-            title: 'Nontes - Anote rápido e em qualquer lugar',
-            style: 'landing.css'
-        });
+        res.send(render('index'));
     });
 
     app.get('/*', async (req, res) => {
@@ -17,14 +16,13 @@ module.exports = app => {
         const names = path.split('/');
         const namesQueue = new Queue(names);
         const note = await api.getOrCreateNote(namesQueue);
-        res.render('note', {
-            notePath: path,
+        // Eh gambi, eu sei, mas so ate achar um template engine legal, prometo sz
+        let subNotesHTML = note.subNotes ? subNotesToHTML(note.subNotes, path) : '';
+        res.send(render('note', {
+            name: note.name,
             content: note.content,
-            subNotes: note.subNotes.map(subNote => subNote.name),
-            hasSubNotes: note.subNotes.length > 0,
-            title: `${note.name} - Nontes`,
-            style: 'note.css'
-        })
+            subNotesHTML
+        }));
     });
 
     app.put('/update/*', (req, res) => {
