@@ -1,12 +1,10 @@
-const version = 7;
+const version = 9;
 let isOnline = true;
 let cachingSubnotes = false;
 
-const dataCacheName = `nontes-data-${version}`;
-const staticCacheName = `nontes-static-${version}`;
+const cacheName = `nontes-${version}`;
 const urlsToStaticCache = [
     '/',
-    '/note',
     '/js/landing.js',
     '/js/nontes.js',
     '/js/note.js',
@@ -23,13 +21,12 @@ self.addEventListener('message', onMessage);
 self.addEventListener('fetch', onFetch);
 
 /* Event Handlers */
-
 async function onMessage({ data }) {
     if (data.statusUpdate) {
         isOnline = data.statusUpdate.isOnline;
     }
     if (data.preloadSubnotes) {
-        await cacheSubnotes(data.preloadSubnotes.path);
+        await cacheSubnotes(data.preloadSubnotes.path, data.preloadSubnotes.subNotes);
     }
 }
 
@@ -65,13 +62,8 @@ async function sendMessage(message) {
 
 async function router(request) {
     const url = new URL(request.url);
-    let cacheItemName = '/note';
-
-    if (url.search || urlsToStaticCache.includes(url.pathname)) {
-        cacheItemName = url.pathname + url.search;
-    }
-    
-    let cache = await getCache(url);
+    let cacheItemName = url.pathname;
+    let cache = await caches.open(cacheName);
 
     if (url.origin === location.origin) {
         let res;
@@ -115,33 +107,33 @@ async function router(request) {
 }
 
 async function handleActivation() {
-    await clearStaticFilesCache();
+    await clearCaches();
     await cacheStaticFiles(true);
     await clients.claim();
     console.log(`Service Worker ${version} activated.`);
 }
 
-
 /* Cache Utils */
-async function cacheSubnotes(currentNodePath) {
+async function cacheSubnotes(currentNodePath, subNotes) {
     if (!isOnline || cachingSubnotes) {
         return;
     }
     cachingSubnotes = true;
     await delay(5000);
-    let cache = await caches.open(dataCacheName);
+    let cache = await caches.open(cacheName);
 
     try {
         const fetchOptions = {
             method: 'GET',
             cache: 'no-store'
         };
-        const url = getDataUrlFromPath(currentNodePath) + '&deep=true';
-        const res = await fetch(url, fetchOptions);
-        if (res && res.ok) {
-            const note = await res.json();
-            await cacheNotesRecursively(note, currentNodePath, res, cache);
-        }
+        subNotes.forEach(async note => {
+            const url = `${currentNodePath}/${note}`;
+            const res = await fetch(url, fetchOptions);
+            if (res && res.ok) {
+                cache.put(url, res.clone());
+            }
+        });
     }
     catch (err) {
         console.error(err);
@@ -151,26 +143,8 @@ async function cacheSubnotes(currentNodePath) {
     }
 }
 
-async function cacheNotesRecursively(note, path, res, cache) {
-    if (typeof note === 'string') {
-        return;
-    }
-
-    const shallowNote = {
-        ...note,
-        subNotes: note.subNotes.map(subnote => subnote.name)
-    };
-    const response = new Response(JSON.stringify(shallowNote), res.headers);
-    const url = getDataUrlFromPath(path);
-    await cache.put(url, response.clone()); 
-
-    return note.subNotes.forEach(subnote =>
-        cacheNotesRecursively(subnote, `${path}/${subnote.name}`, res, cache)
-    );
-}
-
 async function cacheStaticFiles(forceReload) {
-    const cache = await caches.open(staticCacheName);
+    const cache = await caches.open(cacheName);
 
     return Promise.all(urlsToStaticCache.map(async url => {
         try {
@@ -197,15 +171,8 @@ async function cacheStaticFiles(forceReload) {
     }));
 }
 
-function clearStaticFilesCache() {
-    return clearCaches(/^nontes-static-(\d+)$/);
-}
-
-function clearNotesCache() {
-    return clearCaches(/^nontes-notes-(\d+)$/);
-}
-
-async function clearCaches(regex) {
+async function clearCaches() {
+    const regex = /^nontes-(\d+)$/;
     const cacheNames = await caches.keys();
     let invalidCaches = cacheNames.filter(name => {
         if (regex.test(name)) {
@@ -219,23 +186,6 @@ async function clearCaches(regex) {
 
 
 /* Helpers */
-function isNoteData(url) {
-    return url.includes('?data');
-}
-
-function getDataUrlFromPath(path) {
-    return `${path}?data`;
-}
-
-async function getCache(url) {
-    if (isNoteData(url.search)) {
-        return caches.open(dataCacheName);
-    }
-    else {
-        return caches.open(staticCacheName);
-    }
-}
-
 function delay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }

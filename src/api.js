@@ -1,54 +1,63 @@
 const NoteModel = require('./models/Note');
-const { addSubNotes, getSubNote, getNotesNames: getChildrenNames } = require('./helpers/utils');
-const Queue = require('./helpers/queue');
 
 const methods = {
-    async createNote(note) {
-        await NoteModel.create(note);
+    async createOrUpdateNote(note) {
+        if (note instanceof NoteModel) {
+            note.save();
+        }
+        else {
+            NoteModel.create(note);
+        }
     },
 
     async updateNote(queue, content) {
         const root = await NoteModel.findOne({ name: queue.dequeue() });
         let note = root;
-
         if (!queue.isEmpty()) {
-            note = getSubNote(note, queue);
+            note = methods.getOrCreateSubNote(root, queue);
         }
-        
         note.content = content;
         root.save();
     },
 
-    async getNote(queue, subNotesNamesOnly) {
-        const name = queue.dequeue();
-        const root = await NoteModel.findOne({ name });
-        let note = root;
-        
-        if (!queue.isEmpty()) {
-            note = getSubNote(root, queue);
+    getOrCreateSubNote(root, queue) {
+        if (queue.isEmpty()) {
+            return root;
         }
 
-        if (subNotesNamesOnly) {
-            note = note.toObject();
-            note.subNotes = getChildrenNames(note.subNotes);
+        const subNoteName = queue.dequeue();
+        let subNote = root.subNotes.find(note => note.name === subNoteName);
+        if (!subNote) {
+            subNote = {
+                name: subNoteName,
+                content: '',
+                subNotes: []
+            };
+            root.subNotes.push(subNote);
         }
 
-        return note;
+        return methods.getOrCreateSubNote(subNote, queue);
     },
     
-    async createIfDoesntExists(queue) {
+    async getOrCreateNote(queue) {
         const rootName = queue.dequeue();
-        let rootNote = await methods.getNote(new Queue([rootName]));
-        if (!rootNote) {
-            rootNote = {
+        let root = await NoteModel.findOne({ name: rootName })
+        const rootExists = !!root;
+        if (!rootExists) {
+            root = {
                 name: rootName,
                 content: '',
                 subNotes: []
-            }
+            };
         }
-        addSubNotes(rootNote, queue);
-        await methods.createNote(rootNote);
+
+        const note = methods.getOrCreateSubNote(root, queue);
+
+        methods.createOrUpdateNote(root);
+
+        return note;
     }
 }
 
 module.exports = methods;
+

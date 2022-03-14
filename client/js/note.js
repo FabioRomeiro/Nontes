@@ -11,18 +11,27 @@
     const subNotesDataAttribute = 'data-subnotes';
     const openBtnDataAttribute = 'data-open-btn';
 
-    async function init() {
-        fetch(`/${noteName}?data`)
-            .then(res => res.json())
-            .then(note => {
-                const $noteTextarea = document.querySelector('[data-note-content]');
-                $noteTextarea.value = note.content;
-                $noteTextarea.addEventListener('input', onInput);
+    function init() {
+        const $noteTextarea = document.querySelector('[data-note-content]');
+        $noteTextarea.addEventListener('input', onInput);
+        if ('serviceWorker' in navigator) {
+            requestSubnotesPreload()
+        }
+    }
 
-                if (note.subNotes.length) {
-                    createList(note.subNotes);
-                }
-            });
+    async function requestSubnotesPreload() {
+        const $subNotes = document.querySelectorAll('[data-subnotes-item]');
+        if (!$subNotes.length) {
+            return;
+        }
+        const subNotes = Array.from($subNotes, subNote => subNote.textContent.trim());
+        const target = navigator.serviceWorker.controller;
+        target.postMessage({
+            preloadSubnotes: {
+                path: location.pathname,
+                subNotes
+            } 
+        });
     }
 
     function onInput(event) {

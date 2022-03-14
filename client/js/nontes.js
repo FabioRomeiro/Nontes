@@ -31,7 +31,6 @@
 
         serviceWorker = swRegistration.installing || swRegistration.waiting || swRegistration.active;
         sendStatusUpdate(serviceWorker);
-        requestSubnotesPreload(serviceWorker);
 
         navigator.serviceWorker.addEventListener('controllerchange', () => {
             serviceWorker = navigator.serviceWorker.controller
@@ -55,10 +54,6 @@
     function sendServiceWorkerMessage(message, target) {
         target = target || serviceWorker || navigator.serviceWorker.controller;
         target.postMessage(message);
-    }
-
-    function requestSubnotesPreload(target) {
-        sendServiceWorkerMessage({ preloadSubnotes: { path: location.pathname } }, target);
     }
 
     function onOnline() {
