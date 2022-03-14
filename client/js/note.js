@@ -15,7 +15,7 @@
         const $noteTextarea = document.querySelector('[data-note-content]');
         $noteTextarea.addEventListener('input', onInput);
         if ('serviceWorker' in navigator) {
-            //requestSubnotesPreload()
+            requestSubnotesPreload()
         }
     }
 
