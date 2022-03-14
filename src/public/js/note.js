@@ -14,6 +14,24 @@
     function init() {
         const $noteTextarea = document.querySelector('[data-note-content]');
         $noteTextarea.addEventListener('input', onInput);
+        if ('serviceWorker' in navigator) {
+            //requestSubnotesPreload()
+        }
+    }
+
+    async function requestSubnotesPreload() {
+        const $subNotes = document.querySelectorAll('[data-subnotes-item]');
+        if (!$subNotes.length) {
+            return;
+        }
+        const subNotes = Array.from($subNotes, subNote => subNote.textContent.trim());
+        const target = navigator.serviceWorker.controller;
+        target.postMessage({
+            preloadSubnotes: {
+                path: location.pathname,
+                subNotes
+            } 
+        });
     }
 
     function onInput(event) {

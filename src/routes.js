@@ -6,7 +6,7 @@ module.exports = app => {
     app.get('/favicon.ico', (req, res) => res.status(204));
 
     app.get('/', (req, res) => {
-        return res.render('index', {
+        res.render('index', {
             title: 'Nontes - Anote rápido e em qualquer lugar',
             style: 'landing.css'
         });
@@ -17,7 +17,7 @@ module.exports = app => {
         const names = path.split('/');
         const namesQueue = new Queue(names);
         const note = await api.getOrCreateNote(namesQueue);
-        return res.render('note', {
+        res.render('note', {
             notePath: path,
             content: note.content,
             subNotes: note.subNotes.map(subNote => subNote.name),
