@@ -11,8 +11,8 @@ button {
 
 a {
     font-weight: 600;
-    text-decoration: none;
-    color: #5a74eb;
+    text-decoration: underline; 
+    color: #222;
 }
 
 .offline-alert {
@@ -23,6 +23,7 @@ a {
     background-color: #1488cc;
     color: white;
     width: 90%;
+    max-width: 700px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -49,8 +50,8 @@ a {
     margin-right: 16px;
 }
 .offline-alert__icon img {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
 }
 .offline-alert__close-icon {
     margin-left: 16px;

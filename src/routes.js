@@ -5,8 +5,6 @@ const render = require('./helpers/render');
 const { subNotesToHTML } = require('./helpers/utils');
 
 module.exports = app => {
-    app.get('/favicon.ico', (req, res) => res.status(204).send());
-
     app.get('/', (req, res) => {
         res.send(render('index'));
     });
