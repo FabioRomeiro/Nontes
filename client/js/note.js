@@ -8,12 +8,22 @@
     const url = new URL(location.href);
     const noteName = url.pathname.replace('/', '');
 
-    const subNotesDataAttribute = 'data-subnotes';
-    const openBtnDataAttribute = 'data-open-btn';
+    let $subnoteList;
 
     function init() {
-        const $noteTextarea = document.querySelector('[data-note-content]');
-        $noteTextarea.addEventListener('input', onInput);
+        $subnoteList = document.querySelector('[data-subnotes]');
+
+        document
+            .querySelector('[data-note-content]')
+            .addEventListener('input', onInput);
+       
+        document
+            .querySelector('[data-open-btn]')
+            .addEventListener('click', toggleSubNotesList)
+        document
+            .querySelector('[data-shadow]')
+            .addEventListener('click', toggleSubNotesList)
+        
         if ('serviceWorker' in navigator) {
             requestSubnotesPreload()
         }
@@ -61,50 +71,14 @@
         }, savingInterval * 2);
     }
 
-    function createList(items) {
-        const $noteWrapper = document.querySelector('[data-nontes-note]');
-
-        const $openBtn = document.createElement('button');
-        $openBtn.setAttribute(openBtnDataAttribute, '');
-        $openBtn.classList.add('nontes-note__open-btn');
-        $openBtn.innerText = getOpenBtnText(true);
-
-        const $subnoteList = document.createElement('ul');
-        $subnoteList.classList.add('nontes-note__list');
-        $subnoteList.setAttribute(subNotesDataAttribute, '');
-        $subnoteList.appendChild($openBtn);
-
-        for (const item of items) {
-            const $subnoteLink = document.createElement('a');
-            $subnoteLink.setAttribute('href', `/${noteName}/${item}`);
-            $subnoteLink.innerText = item;
-            
-            const $subnoteItem = document.createElement('li');
-            $subnoteItem.classList.add('nontes-note__item');
-            $subnoteItem.appendChild($subnoteLink);
-
-            $subnoteList.appendChild($subnoteItem);
-        }
-
-        $noteWrapper.insertBefore($subnoteList, $noteWrapper.childNodes[0]);
-
-        document
-            .querySelector(`[${openBtnDataAttribute}]`)
-            .addEventListener('click', toggleList)
-        document
-            .querySelector(`[data-shadow]`)
-            .addEventListener('click', toggleList)
-    }
-
-    function toggleList(event) {
+    function toggleSubNotesList(event) {
         event.preventDefault();
         const isOpen = toggleSubNotesListClass();
         event.target.innerText = getOpenBtnText(!isOpen);
     }
 
     function toggleSubNotesListClass() {
-        const $subnoteList = document.querySelector(`[${subNotesDataAttribute}]`);
-        const openedClass = 'nontes-note__list--opened';
+        const openedClass = 'nn-list--opened';
         $subnoteList.classList.toggle(openedClass);
         return $subnoteList.classList.contains(openedClass)
     }

@@ -4,7 +4,12 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>${name} - Nontes</title>
+        <meta
+            name="description"
+            content="Escreva o que precisar nesta nota e não se preocupe em salva-la pois fazemos isso automaticamente, e ainda a disponibilizamos para você offline neste dispositivo!"
+        />
         <meta name="robots" content="noindex, nofollow" />
+        <link rel="canonical" href="https://nontes.xyz/${path}"/>
         <link rel="shortcut icon" href="/assets/favicon.ico" type="image/x-icon">
         <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
         <link rel="stylesheet" href="/css/global.css">
@@ -13,11 +18,11 @@
     <body>
         <article data-nontes-note class="nontes-note">
             ${subNotesHTML}
-            <div data-shadow class="nontes-note__shadow"></div>
-            <textarea data-note-content autofocus class="nontes-note__content">${content}</textarea>
+            <div data-shadow class="nn-shadow"></div>
+            <textarea data-note-content autofocus class="nn-content">${content}</textarea>
         </article>
 
-        <script src="/js/nontes.js"></script>
-        <script src="/js/note.js"></script>
+        <script defer src="/js/nontes.js"></script>
+        <script defer async src="/js/note.js"></script>
     </body>
 </html>
