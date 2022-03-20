@@ -1,8 +1,8 @@
 module.exports = {
     subNotesToHTML (subNotes, path) {
         let $li = subNotes.map(n => `
-            <li class="nnsl-item" data-subnotes-item title="${n.name}">
-                <a href="/${path}/${n.name}">${n.name}</a>
+            <li class="nnsl-item" data-subnotes-item >
+                <a href="/${path}/${n.name}" title="${n.name}">${n.name}</a>
             </li>
         `).join('');
         return `
