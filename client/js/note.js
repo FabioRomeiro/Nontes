@@ -1,33 +1,34 @@
 (function note() {
     
-    document.addEventListener('DOMContentLoaded', init);
-
     let timeout = null;
     let interval = null;
     const savingInterval = 3000;
     const url = new URL(location.href);
     const noteName = url.pathname.replace('/', '');
 
-    let $subnoteList;
+    let $subnotesWrapper;
+    const subNotesClass = 'nn-subnotes';
+    const openedSufix = '--opened';
 
-    function init() {
-        $subnoteList = document.querySelector('[data-subnotes]');
-
+    (function init() {
         document
             .querySelector('[data-note-content]')
             .addEventListener('input', onInput);
-       
-        document
-            .querySelector('[data-open-btn]')
-            .addEventListener('click', toggleSubNotesList)
-        document
-            .querySelector('[data-shadow]')
-            .addEventListener('click', toggleSubNotesList)
-        
+
+        $subnotesWrapper = document.querySelector('[data-subnotes]');
+        if ($subnotesWrapper) {
+            document
+                .querySelector('[data-open-btn]')
+                .addEventListener('click', toggleSubNotesList)
+            document
+                .querySelector('[data-shadow]')
+                .addEventListener('click', toggleSubNotesList)
+        }
+ 
         if ('serviceWorker' in navigator) {
             requestSubnotesPreload()
         }
-    }
+    })();
 
     async function requestSubnotesPreload() {
         const $subNotes = document.querySelectorAll('[data-subnotes-item]');
@@ -73,18 +74,11 @@
 
     function toggleSubNotesList(event) {
         event.preventDefault();
-        const isOpen = toggleSubNotesListClass();
-        event.target.innerText = getOpenBtnText(!isOpen);
-    }
-
-    function toggleSubNotesListClass() {
-        const openedClass = 'nn-list--opened';
-        $subnoteList.classList.toggle(openedClass);
-        return $subnoteList.classList.contains(openedClass)
-    }
-
-    function getOpenBtnText(closed) {
-        return closed ? 'Ver sub-notas' : 'Esconder sub-notas';
+        const openedClass = subNotesClass + openedSufix;
+        $subnotesWrapper.classList.toggle(openedClass);
+        const isOpen = $subnotesWrapper.classList.contains(openedClass);
+        const btnText = isOpen ? 'Esconder sub-notas' : 'Ver sub-notas';
+        event.target.innerText = btnText;
     }
 
     function save(content) {
