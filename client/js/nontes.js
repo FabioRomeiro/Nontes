@@ -7,18 +7,17 @@
     let serviceWorker;
     let swRegistration;
 
+    if ('serviceWorker' in navigator) {
+        initServiceWorker()
+            .catch(console.error);
+    }
+
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOfline);
+
     document.addEventListener('DOMContentLoaded', init);
 
     function init() {
-        
-        if ('serviceWorker' in navigator) {
-            initServiceWorker()
-                .catch(console.error);
-        }
-
-        window.addEventListener('online', onOnline);
-        window.addEventListener('offline', onOfline);
-
         if (!isOnline) {
             onOfline();
         }
