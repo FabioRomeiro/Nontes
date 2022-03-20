@@ -15,8 +15,9 @@ module.exports = app => {
         const namesQueue = new Queue(names);
         const note = await api.getOrCreateNote(namesQueue);
         // Eh gambi, eu sei, mas so ate achar um template engine legal, prometo sz
-        let subNotesHTML = note.subNotes ? subNotesToHTML(note.subNotes, path) : '';
+        let subNotesHTML = note.subNotes.length ? subNotesToHTML(note.subNotes, path) : '';
         res.send(render('note', {
+            path,
             name: note.name,
             content: note.content,
             subNotesHTML

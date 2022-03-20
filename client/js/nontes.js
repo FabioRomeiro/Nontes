@@ -7,18 +7,17 @@
     let serviceWorker;
     let swRegistration;
 
+    if ('serviceWorker' in navigator) {
+        initServiceWorker()
+            .catch(console.error);
+    }
+
+    window.addEventListener('online', onOnline);
+    window.addEventListener('offline', onOfline);
+
     document.addEventListener('DOMContentLoaded', init);
 
     function init() {
-        
-        if ('serviceWorker' in navigator) {
-            initServiceWorker()
-                .catch(console.error);
-        }
-        
-        window.addEventListener('online', onOnline);
-        window.addEventListener('offline', onOfline);
-
         if (!isOnline) {
             onOfline();
         }
@@ -69,24 +68,21 @@
     }
 
     function createOfflineAlert() {
-        const classBase = 'offline-alert';
         const $offlineAlert = document.createElement('div');
         $offlineAlert.setAttribute(offlineAlertAttribute, '');
-        $offlineAlert.classList.add(classBase);
+        $offlineAlert.classList.add('offline-alert');
         const closeAlertButtonAttribute = 'data-close-alert';
+        const classPrefix = 'oa';
         $offlineAlert.innerHTML = `
-            <div class="${classBase}__icon">
-                <img src="/assets/images/no-internet.svg" />
-            </div>
-            <div class="${classBase}__info">
-                <h3 class="${classBase}__title">Você está offline, mas não se preocupe!</h3>
-                <p class="${classBase}__text">
+            <div class="${classPrefix}-info">
+                <h3 class="${classPrefix}-title">Você está offline, mas não se preocupe!</h3>
+                <p class="${classPrefix}-text">
                     Suas notas estão sendo salvas neste dispositivo e serão atualizadas assim que a internet voltar.
                 </p>
             </div>
-            <div class="${classBase}__close-icon">
-                <a ${closeAlertButtonAttribute} href></a>
-            </div>
+            <button ${closeAlertButtonAttribute} type="button" class="${classPrefix}-close">
+                <img src="assets/images/x.svg" alt="Icone de botão para fechar" width="15" height="15" />
+            </button>
         `;
 
         document.body.appendChild($offlineAlert);
