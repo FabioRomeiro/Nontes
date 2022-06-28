@@ -2,9 +2,9 @@ FROM node:16
 
 USER node
 
-RUN mkdir /home/app
+RUN mkdir /home/node/app
 
-WORKDIR /home/app
+WORKDIR /home/node/app
 
 COPY --chown=node:node package-lock.json package.json ./
 
@@ -12,4 +12,4 @@ RUN npm ci
 
 COPY --chown=node:node . .
 
-CMD ["node", "app/server.js"]
+CMD ["node", "server.js"]
