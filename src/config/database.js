@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
-const mongoDB = 'mongodb://127.0.0.1/nontes';
+const mongoConnectionString = process.env.MONGO_CONNECTION_STRING || 'mongodb://localhost:27017';
+const mongoDB = `${mongoConnectionString}/nontes`;
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 
 const db = mongoose.connection;

@@ -1,4 +1,6 @@
-FROM node:16
+FROM node:16-alpine
+
+RUN npm i --location=global nodemon
 
 USER node
 
@@ -12,4 +14,4 @@ RUN npm ci
 
 COPY --chown=node:node . .
 
-CMD ["node", "server.js"]
+CMD ["nodemon", "server.js"]
