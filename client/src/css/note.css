@@ -74,12 +74,12 @@
         margin-right: 0;
         z-index: 1;
     }
-    .nn-subnotes--opened {
+    .nn-subnotes[opened] {
         height: 70vh;
         overflow: auto;
     }
-    .nn-subnotes--opened + .nn-shadow,
-    .nn-subnotes--opened .nns-list,
+    .nn-subnotes[opened] + .nn-shadow,
+    .nn-subnotes[opened] .nns-list,
     .nns-btn {
         display: block;
     }

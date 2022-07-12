@@ -5,8 +5,8 @@ services:
     ports:
       - "4200:4200"
     volumes:
-      - .:/home/node/code
-      - /home/node/code/node_modules
+      - .:/home/node/app
+      - /home/node/app/node_modules
     links:
       - db
     environment:
