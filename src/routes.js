@@ -1,27 +1,22 @@
 const api = require('./api');
 const path = require('path');
 const Queue = require('./helpers/queue');
-const render = require('./helpers/render');
-const { subNotesToHTML } = require('./helpers/utils');
 
 module.exports = app => {
     app.get('/', (req, res) => {
-        res.send(render('index'));
+        res.sendFile(path.resolve('client/src/index.html'));
     });
 
-    app.get('/*', async (req, res) => {
-        const path = req.params[0];
-        const names = path.split('/');
+    app.get('/*', async (req, res, next) => {
+        const names = req.params[0].split('/');
         const namesQueue = new Queue(names);
-        const note = await api.getOrCreateNote(namesQueue);
-        // Eh gambi, eu sei, mas so ate achar um template engine legal, prometo sz
-        let subNotesHTML = note.subNotes.length ? subNotesToHTML(note.subNotes, path) : '';
-        res.send(render('note', {
-            path,
-            name: note.name,
-            content: note.content,
-            subNotesHTML
-        }));
+
+        if (req.query.json === undefined) {
+            res.sendFile(path.resolve('client/src/note.html'));
+            return;
+        }
+
+        res.json(await api.getOrCreateNote(namesQueue));
     });
 
     app.put('/update/*', (req, res) => {

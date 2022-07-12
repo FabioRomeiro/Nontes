@@ -9,35 +9,29 @@
     let $subnotesWrapper;
 
     (async function init() {
-        const note = await getNote(noteName);
+        const note = await getNote(url);
 
-        const $noteContent = document.querySelector('[data-note-content]');
-        $noteContent.textContent = note.content;
-
-        $noteContent.addEventListener('input', onInput);
-
-        setHeadMetatags();
-       
-        if (note.subnotes.length) {
-            $subnotesWrapper = renderSubnotes(note.subnotes);
-            setupSubnotesEventListeners();
-        }
+        setUpNoteContentSection(note.content);
+        setUpHeadMetatags();
+        setSubnotesSection(note.subnotes); 
  
-        if ('serviceWorker' in navigator) {
-            requestSubnotesPreload()
-        }
+        requestSubnotesPreload()
     })();
 
-    async function getNote(noteName) {
-        return new Promise((resolve, reject) => {
-            resolve({
-                content: 'aaaaaaaaaaaa',
-                subnotes: ['b', 'c']
-            })
-        });
+    function getNote(url) {
+        return fetch(`${url.pathname}?json=true`, {
+            method: 'GET',
+            headers: {
+                'content-type': 'application/json'
+            }
+        }).then(res => res.json());
     }
 
     async function requestSubnotesPreload() {
+        if (!('serviceWorker' in navigator)) {
+            return;
+        }
+
         const $subNotes = document.querySelectorAll('[data-subnotes-item]');
         if (!$subNotes.length) {
             return;
@@ -62,7 +56,21 @@
         });
     }
     
-    function setHeadMetatags() {
+    function setUpNoteContentSection(content) {
+        const $noteContent = document.querySelector('[data-note-content]');
+        $noteContent.textContent = content;
+        $noteContent.addEventListener('input', onInput);
+    }
+
+    function setSubnotesSection(subnotes) {
+        if (!subnotes.length) {
+            return;
+        }
+        $subnotesWrapper = renderSubnotes(subnotes);
+        setupSubnotesEventListeners();
+    }
+
+    function setUpHeadMetatags() {
         document.title = `${noteName} - Nontes`;
         document.querySelector('link[rel="canonical"]').setAttribute('href', url.href);
     }

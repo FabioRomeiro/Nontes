@@ -6,7 +6,7 @@ const NoteSchema = new Schema();
 NoteSchema.add({
     name: { type: String, unique: true, trim: true },
     content: String,
-    subNotes: [NoteSchema]
+    subnotes: [NoteSchema]
 });
 
 module.exports = mongoose.model('Note', NoteSchema);
