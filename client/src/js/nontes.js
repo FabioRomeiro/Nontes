@@ -80,9 +80,7 @@
                     Suas notas estão sendo salvas neste dispositivo e serão atualizadas assim que a internet voltar.
                 </p>
             </div>
-            <button ${closeAlertButtonAttribute} type="button" class="${classPrefix}-close">
-                <span class="oac-icon"></span>
-            </button>
+            <button ${closeAlertButtonAttribute} type="button" class="${classPrefix}-close"></button>
         `;
 
         document.body.appendChild($offlineAlert);
