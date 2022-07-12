@@ -1,4 +1,4 @@
-const version = 9;
+const version = 10;
 let isOnline = true;
 let cachingSubnotes = false;
 
@@ -11,8 +11,7 @@ const urlsToStaticCache = [
     '/css/global.css',
     '/css/note.css',
     '/css/landing.css',
-    '/assets/images/no-internet.svg',
-    '/favicon.ico'
+    '/assets/favicon.ico'
 ];
 
 self.addEventListener('install', onInstall);
@@ -62,46 +61,47 @@ async function sendMessage(message) {
 
 async function router(request) {
     const url = new URL(request.url);
-    let cacheItemName = url.pathname;
-    let cache = await caches.open(cacheName);
 
-    if (url.origin === location.origin) {
-        let res;
-        const isSavingNote = request.method === 'PUT';
-        
-        if (isOnline) {
-            try {
-                let cacheResponse = true;
+    if (url.origin !== location.origin) {
+        return;
+    }
 
-                let fetchOptions = {
-                    method: request.method,
-                    headers: request.headers,
-                    cache: 'no-store'
-                };
+    const isRequestingNotePageHtml = !urlsToStaticCache.includes(url.pathname) && !url.search;
+    const cacheItemName = isRequestingNotePageHtml ? 'note.html' : url.pathname;
+    const cache = await caches.open(cacheName);
+    const isSavingNote = request.method === 'PUT';
+    
+    if (isOnline) {
+        try {
+            let cacheResponse = true;
 
-                if (isSavingNote) {
-                    const body = await request.json();
-                    fetchOptions.body = JSON.stringify(body);
-                    cacheResponse = false;
-                }
+            let fetchOptions = {
+                method: request.method,
+                headers: request.headers,
+                cache: 'no-store'
+            };
 
-                res = await fetch(url.toString(), fetchOptions);
-            
-                if (res && res.ok) {
-                    if (cacheResponse) {
-                        await cache.put(cacheItemName, res.clone());
-                    }
-                    return res;
-                }
+            if (isSavingNote) {
+                const body = await request.json();
+                fetchOptions.body = JSON.stringify(body);
+                cacheResponse = false;
             }
-            catch (err) {}
+
+            const res = await fetch(url.toString(), fetchOptions);
+            if (res && res.ok) {
+                if (cacheResponse) {
+                    await cache.put(cacheItemName, res.clone());
+                }
+                return res;
+            }
         }
+        catch (err) {}
+    }
 
-        if (!isSavingNote) {
-            res = await cache.match(cacheItemName);
-            if (res) {
-                return res.clone();
-            }
+    if (!isSavingNote) {
+        const res = await cache.match(cacheItemName);
+        if (res) {
+            return res.clone();
         }
     }
 }
@@ -118,6 +118,7 @@ async function cacheSubnotes(currentNodePath, subNotes) {
     if (!isOnline || cachingSubnotes) {
         return;
     }
+
     cachingSubnotes = true;
     await delay(5000);
     let cache = await caches.open(cacheName);
@@ -128,7 +129,7 @@ async function cacheSubnotes(currentNodePath, subNotes) {
             cache: 'no-store'
         };
         subNotes.forEach(async note => {
-            const url = `${currentNodePath}/${note}`;
+            const url = `${currentNodePath}/${note}?json=true`;
             const res = await fetch(url, fetchOptions);
             if (res && res.ok) {
                 cache.put(url, res.clone());

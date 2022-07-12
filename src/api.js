@@ -44,7 +44,7 @@ module.exports = {
         let root = await NoteModel.findOne({ name: rootName })
         const rootExists = !!root;
         if (!rootExists) {
-            root = getNoteObject(noteName);
+            root = getNoteObject(rootName);
         }
 
         const note = getOrCreateSubnote(root, queue);

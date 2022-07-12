@@ -81,7 +81,7 @@
                 </p>
             </div>
             <button ${closeAlertButtonAttribute} type="button" class="${classPrefix}-close">
-                <img src="assets/images/x.svg" alt="Icone de botão para fechar" width="15" height="15" />
+                <span class="oac-icon"></span>
             </button>
         `;
 

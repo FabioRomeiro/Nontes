@@ -15,7 +15,7 @@
         setUpHeadMetatags();
         setSubnotesSection(note.subnotes); 
  
-        requestSubnotesPreload()
+        requestSubnotesPreload();
     })();
 
     function getNote(url) {
