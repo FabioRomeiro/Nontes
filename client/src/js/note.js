@@ -1,3 +1,5 @@
+import { getNoteDoc } from './firebase.js';
+
 (function note() {
     
     let timeout = null;
@@ -19,12 +21,15 @@
     })();
 
     function getNote(url) {
+        return getNoteDoc(noteName);
+        /*
         return fetch(`${url.pathname}?json=true`, {
             method: 'GET',
             headers: {
                 'content-type': 'application/json'
             }
         }).then(res => res.json());
+        */
     }
 
     async function requestSubnotesPreload() {

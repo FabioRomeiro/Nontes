@@ -63,7 +63,7 @@ async function router(request) {
     const url = new URL(request.url);
 
     if (url.origin !== location.origin) {
-        return;
+        return await fetch(request);
     }
 
     const isRequestingNotePageHtml = !urlsToStaticCache.includes(url.pathname) && !url.search;
