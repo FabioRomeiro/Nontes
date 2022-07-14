@@ -1,63 +1,57 @@
 const NoteModel = require('./models/Note');
 
-const methods = {
-    async createOrUpdateNote(note) {
-        if (note instanceof NoteModel) {
-            note.save();
-        }
-        else {
-            NoteModel.create(note);
-        }
-    },
+function getNoteObject(name='', content='', subnotes=[]) {
+    return { name, content, subnotes };
+}
 
+function getOrCreateSubnote(root, queue) {
+    if (queue.isEmpty()) {
+        return getNoteObject(root.name, root.content, root.subnotes.map(note => note.name));
+    }
+
+    const subnoteName = queue.dequeue();
+    let subnote = root.subnotes.find(note => note.name === subnoteName);
+    if (!subnote) {
+        subnote = getNoteObject(subnoteName);
+        root.subnotes.push(subnote);
+    }
+
+    return getOrCreateSubnote(subnote, queue);
+}
+    
+async function createOrUpdateNote(note) {
+    if (note instanceof NoteModel) {
+        note.save();
+        return
+    }
+
+    NoteModel.create(note);
+}
+
+module.exports = {
     async updateNote(queue, content) {
         const root = await NoteModel.findOne({ name: queue.dequeue() });
         let note = root;
         if (!queue.isEmpty()) {
-            note = methods.getOrCreateSubNote(root, queue);
+            note = getOrCreateSubnote(root, queue);
         }
         note.content = content;
         root.save();
     },
 
-    getOrCreateSubNote(root, queue) {
-        if (queue.isEmpty()) {
-            return root;
-        }
-
-        const subNoteName = queue.dequeue();
-        let subNote = root.subNotes.find(note => note.name === subNoteName);
-        if (!subNote) {
-            subNote = {
-                name: subNoteName,
-                content: '',
-                subNotes: []
-            };
-            root.subNotes.push(subNote);
-        }
-
-        return methods.getOrCreateSubNote(subNote, queue);
-    },
-    
     async getOrCreateNote(queue) {
         const rootName = queue.dequeue();
         let root = await NoteModel.findOne({ name: rootName })
         const rootExists = !!root;
         if (!rootExists) {
-            root = {
-                name: rootName,
-                content: '',
-                subNotes: []
-            };
+            root = getNoteObject(rootName);
         }
 
-        const note = methods.getOrCreateSubNote(root, queue);
+        const note = getOrCreateSubnote(root, queue);
 
-        methods.createOrUpdateNote(root);
+        createOrUpdateNote(root);
 
         return note;
     }
-}
-
-module.exports = methods;
+};
 

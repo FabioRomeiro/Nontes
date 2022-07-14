@@ -80,9 +80,7 @@
                     Suas notas estão sendo salvas neste dispositivo e serão atualizadas assim que a internet voltar.
                 </p>
             </div>
-            <button ${closeAlertButtonAttribute} type="button" class="${classPrefix}-close">
-                <img src="assets/images/x.svg" alt="Icone de botão para fechar" width="15" height="15" />
-            </button>
+            <button ${closeAlertButtonAttribute} type="button" class="${classPrefix}-close"></button>
         `;
 
         document.body.appendChild($offlineAlert);

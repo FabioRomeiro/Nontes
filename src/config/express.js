@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const consign = require('consign');
 
-app.use(express.static('./client'));
+app.use(express.static('./client/src'));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 

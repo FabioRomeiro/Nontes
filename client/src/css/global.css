@@ -42,7 +42,6 @@ a {
     margin-bottom: 0;
 }
 
-
 .oa-close {
     background: none;
     border: none;
@@ -52,5 +51,18 @@ a {
     justify-content: flex-end;
     align-self: flex-start;
     cursor: pointer;
+    position: relative;
 }
-
+.oa-close::after, .oa-close::before {
+    content: '';
+    width: 16px;
+    height: 3px;
+    background-color: white;
+    position: absolute;
+}
+.oa-close::after {
+    transform: rotateZ(50deg);
+}
+.oa-close::before {
+    transform: rotateZ(-50deg);
+}
